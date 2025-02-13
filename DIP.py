@@ -27,7 +27,7 @@ def dir_crawler(dataset_path):
         for root, dirs, files in os.walk(dataset_path):
             for file in files:
                 _, file_ext = os.path.splitext(file)
-                if file_ext.lower() == ".png":  
+                if file_ext.lower() == ".jpg":  
                     file_path = os.path.join(root, file)
                     print(f"Processing: {file_path}")
                     load_image(file_path) 
