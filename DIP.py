@@ -1,20 +1,22 @@
 from PIL import Image
 import matplotlib.pyplot as plt
 import os
-
+import cv2
+import numpy as np
 
 def load_image(file_path):
     try:
         img = Image.open(file_path)  
-        plt.imshow(img)  
-        plt.axis('off')
-        plt.show()
+        #plt.imshow(img)  
+        #plt.axis('off')
+        #plt.show()
 
         
         grayscale_img = img.convert('L') 
-        plt.imshow(grayscale_img, cmap='gray')  
-        plt.axis('off')
-        plt.show()
+        
+        #plt.imshow(grayscale_img, cmap='gray')  
+        #plt.axis('off')
+        #plt.show()
         grayscale_img.save(file_path)
         return grayscale_img
     except Exception as e:
@@ -36,7 +38,59 @@ def dir_crawler(dataset_path):
 
 
 dataset_path = r"C:\Users\Desert Fox\Documents\dataset\dataset\A"
-
-
+background1 = r"C:\Users\Desert Fox\Documents\dataset\dataset\A\nothing1.jpg"
+background2 = r"C:\Users\Desert Fox\Documents\dataset\dataset\A\nothing2.jpg"
+background3 = r"C:\Users\Desert Fox\Documents\dataset\dataset\A\nothing3.jpg"
+ex_img = r"C:\Users\Desert Fox\Documents\dataset\dataset\A\A11.jpg"
+#dir_crawler(dataset_path)
 #load_image(dataset_path)
 
+
+backgrounds = [
+    np.array(Image.open(background1)), 
+    np.array(Image.open(background2)),
+    np.array(Image.open(background3))
+]
+
+   
+def compare_images(img, backgrounds):
+    min_diff = float('inf')
+    best_match = None
+
+    for bg in backgrounds:
+        diff = np.sum(np.abs(img.astype(np.int16) - bg.astype(np.int16)))  # Compute sum of absolute differences
+        if diff < min_diff:
+            min_diff = diff
+            best_match = bg
+
+    return best_match
+
+
+def process_image(image_path, backgrounds):
+    
+    img = np.array(load_image(image_path))  
+    
+    matching_bg = compare_images(img, backgrounds)
+    
+    if matching_bg is not None:
+        #result = np.clip(img.astype(np.int16) - matching_bg.astype(np.int16), 0, 255).astype(np.uint8)
+        #result_image = Image.fromarray(result)
+        
+        
+        #result_image.save(image_path)
+
+        diff = np.abs(img.astype(np.float32) - matching_bg.astype(np.float32))
+
+        
+        diff = (diff - diff.min()) / (diff.max() - diff.min()) * 255  
+
+        result = diff.astype(np.uint8)
+        result_image = Image.fromarray(result)
+        result_image.save(image_path)
+        
+    else:
+        print(f"No matching background found for {image_path}")
+
+
+
+process_image(ex_img, backgrounds)
