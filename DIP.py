@@ -94,3 +94,29 @@ def process_image(image_path, backgrounds):
 
 
 process_image(ex_img, backgrounds)
+
+
+
+def classifier_cnn(img_rows=200, img_cols=200, num_classes=28):
+    model = Sequential()
+    model.add(Conv2D(32, (3,3), activation='relu', input_shape=(img_rows, img_cols, 1), padding='same'))
+    model.add(MaxPooling2D(pool_size=(2,2)))
+    model.add(Conv2D(64, (3,3), activation='relu', padding='same'))
+    model.add(MaxPooling2D(pool_size=(2,2)))
+    model.add(Conv2D(128, (3,3), activation='relu', padding='same'))
+    model.add(MaxPooling2D(pool_size=(2,2)))
+    model.add(Conv2D(128, (3,3), activation='relu', padding='same'))
+    model.add(MaxPooling2D(pool_size=(2,2)))
+    model.add(Flatten())
+    model.add(Dense(256))
+    model.add(LeakyReLU(0.2))
+    model.add(Dropout(0.5))  
+    model.add(Dense(num_classes, activation='softmax'))
+
+    return model
+
+
+num_classes = 28  
+model = classifier_cnn(img_rows=200, img_cols=200, num_classes=num_classes)
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+model.summary()
